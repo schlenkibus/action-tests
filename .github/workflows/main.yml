@@ -16,8 +16,8 @@ jobs:
       - name: Check commits
         run: |
           git fetch
-          git checkout ${{ github.event.pull_request.base.ref }}
-          git log --pretty=format:"%H" > base_commits.txt
           git checkout ${{ github.event.pull_request.head.ref }}
-          git log --pretty=format:"%H" > pr_commits.txt
-          diff base_commits.txt pr_commits.txt || echo "::error::Not all commits from main are present in this PR" && exit 1
+          if ! git merge-base --is-ancestor main HEAD; then
+            echo "::error::Not all commits from main are present in this PR"
+            exit 1
+          fi
