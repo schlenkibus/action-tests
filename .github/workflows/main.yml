@@ -1,0 +1,21 @@
+name: Validate PR Branch
+
+on:
+  pull_request:
+    branches:
+      - '*'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Check if all commits from main are present
+        run: |
+          git fetch origin main
+          if ! git merge-base --is-ancestor main HEAD; then
+            echo "::error::Not all commits from main are present in this PR"
+            exit 1
+          fi
