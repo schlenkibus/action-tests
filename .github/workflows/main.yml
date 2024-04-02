@@ -12,10 +12,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Fetch main branch
+        run: git fetch origin main
+
       - name: Check if all commits from main are present
         run: |
-          git fetch origin main
-          if ! git merge-base --is-ancestor main HEAD; then
+          if ! git merge-base --is-ancestor origin/main HEAD; then
             echo "::error::Not all commits from main are present in this PR"
             exit 1
           fi
