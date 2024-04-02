@@ -6,18 +6,18 @@ on:
       - '*'
 
 jobs:
-  validate:
+  check-merge:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Fetch main branch
-        run: git fetch origin main
-
-      - name: Check if all commits from main are present
+      - name: Check commits
         run: |
-          if ! git merge-base --is-ancestor origin/main HEAD; then
-            echo "::error::Not all commits from main are present in this PR"
-            exit 1
-          fi
+          git fetch origin ${{ github.event.pull_request.base.ref }}
+          git checkout ${{ github.event.pull_request.base.ref }}
+          git log --pretty=format:"%H" > base_commits.txt
+          git checkout ${{ github.event.pull_request.head.ref }}
+          git log --pretty=format:"%H" > pr_commits.txt
+          diff base_commits.txt pr_commits.txt || echo "::error::Not all commits from main are present in this PR" && exit 1
